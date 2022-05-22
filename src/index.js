@@ -21,12 +21,12 @@ import './style.css';
   subscribe('init', addTodo);
 
   const render = () => {
-    console.log('render');
     while (content.firstChild) {
       content.firstChild.remove();
     }
     shownTodo = [...allTodo];
     shownTodo.forEach((obj) => {
+      console.log(obj.getDone());
       content.append(obj.render());
     });
   };
