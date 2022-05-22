@@ -3,10 +3,20 @@ import deleteImage from './img/delete.svg';
 const todo = (project, publish, deleteTodo) => {
   const create = (type) => document.createElement(type);
 
+  let id = Symbol('id of todoObj');
   let done = false;
   let priority = '-';
+  let title = '';
+  let note = '';
   let date = 'no date';
-  const id = Symbol('id of todoObj');
+
+  const updateLocalStorage = () => {
+    // load data from localStorage
+    // store data in allTodo
+    // search for same id in allTodo
+    // update key with value in allTodo
+    // stringify allTodo and store in localStorage
+  };
 
   const checkbox = create('input');
   checkbox.type = 'checkbox';
@@ -24,8 +34,8 @@ const todo = (project, publish, deleteTodo) => {
   priorityDiv.classList.add('priority-box');
   const prioritySpan = create('span');
   prioritySpan.textContent = priority;
-  const setPriority = (level) => {
-    priority = level;
+  const setPriority = (newPriority) => {
+    priority = newPriority;
     prioritySpan.textContent = priority;
     publish('shownTodoChanged');
   };
@@ -67,15 +77,17 @@ const todo = (project, publish, deleteTodo) => {
   titleDiv.append(titleSpan);
   titleSpan.addEventListener('click', () => {
     titleDiv.firstChild.remove();
-    titleInput.value = titleSpan.textContent;
+    titleInput.value = title;
     titleDiv.append(titleInput);
     titleInput.focus();
   });
   titleInput.addEventListener('blur', () => {
     titleDiv.firstChild.remove();
-    titleSpan.textContent = titleInput.value;
+    title = titleInput.value;
+    titleSpan.textContent = title;
     titleDiv.append(titleSpan);
   });
+
   const deleteBtn = create('button');
   deleteBtn.classList.add('delete-btn');
   const deleteImg = create('img');
@@ -94,13 +106,14 @@ const todo = (project, publish, deleteTodo) => {
   noteDiv.append(noteText);
   noteText.addEventListener('click', () => {
     noteDiv.firstChild.remove();
-    noteInput.value = noteText.textContent;
+    noteInput.value = note;
     noteDiv.append(noteInput);
     noteInput.focus();
   });
   noteInput.addEventListener('blur', () => {
     noteDiv.firstChild.remove();
-    noteText.textContent = noteInput.value;
+    note = noteInput.value;
+    noteText.textContent = note;
     noteDiv.append(noteText);
   });
 
@@ -137,18 +150,36 @@ const todo = (project, publish, deleteTodo) => {
     dueDateDiv,
   );
 
-  const getDate = () => date;
-  const getDone = () => done;
-  const getPriority = () => priority;
+  const set = (newDone, newPriority, newTitle, newNote, newDate, newId) => {
+    done = newDone;
+    checkbox.checked = done;
+    priority = newPriority;
+    prioritySpan.textContent = priority;
+    title = newTitle;
+    titleSpan.textContent = title;
+    note = newNote;
+    noteText.textContent = note;
+    date = newDate;
+    dueDateSpan.textContent = date;
+    if (newId) id = newId;
+  };
+
+  const get = () => ({
+    done,
+    priority,
+    title,
+    note,
+    date,
+  });
+
   const render = () => todoObj;
 
   return {
     project,
     id,
     render,
-    getDate,
-    getDone,
-    getPriority,
+    set,
+    get,
   };
 };
 

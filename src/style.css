@@ -23,10 +23,53 @@
   min-height: 100vh;
   background-color: var(--cultured-2);
   color: var(--eerie-black);
+  display: grid;
+  grid-template-columns: auto 1fr;
+}
+
+#sidebar {
+  background-color: var(--cultured);
+  padding: 1rem;
+  display: grid;
+  align-content: start;
+}
+
+#sidebar .header {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.8rem;
+}
+
+#sidebar .header:first-of-type {
+  font-size: 2.2rem;
+}
+
+#sidebar .header:first-of-type span {
+  color: purple;
+}
+
+#sidebar .tab {
+  color: var(--davys-grey);
+  margin-bottom: 1.5rem;
+}
+
+#main {
+  padding: 2rem;
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+}
+
+#main #current-project {
+  font-size: 1.5rem;
+  font-weight: 700;
+  padding-bottom: 1rem;
+  border-bottom: medium solid var(--light-gray);
 }
 
 .todo-obj {
   background-color: var(--cultured);
+  border: thin solid var(--light-gray);
   display: grid;
   min-width: 18rem;
   grid-template: 
@@ -35,7 +78,6 @@
     '.  date  date date' auto /
     auto auto 1fr auto;
   grid-gap: 0.5rem;
-  margin: 2rem;
   padding: 1rem;
   border-radius: 1rem;
 }
@@ -84,7 +126,7 @@
   background-color: var(--cultured-2);
   border-radius: 1rem;
   border-top-left-radius: 0;
-  border: thin solid var(--sonic-silver);
+  border: thin solid var(--light-gray);
   font-size: 1rem;
   height: max-content;
   overflow: hidden;
@@ -98,7 +140,7 @@
 
 .todo-obj .priority-box .priority-popup .priority-btn {
   border: thin solid var(--sonic-silver);
-  background-color: var(--light-gray);
+  background-color: var(--cultured);
   padding: 0.3rem;
   width: 2rem;
   text-align: center;
@@ -109,9 +151,10 @@
 .todo-obj .title-box {
   grid-area: title;
   font-size: 1.5rem;
-  font-weight: 400;
+  font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
+
 }
 
 .todo-obj .title-box input[type="text"] {
@@ -123,7 +166,7 @@
   padding: 0;
   font-size: 1.5rem;
   height: 1.1em;
-  font-weight: 400;
+  font-weight: 500;
   outline: none;
   border-bottom: thin solid var(--eerie-black);
 }
