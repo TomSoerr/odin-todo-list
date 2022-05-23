@@ -1,59 +1,130 @@
 import todo from './todo';
 import { subscribe, publish } from './pubsub';
 import page from './page';
+import storageAvailable from './local-storage-test';
 import './style.css';
 
 (function main() {
   const content = document.querySelector('#content');
+  const allTodoKey = '145933322467867';
+  const projectKey = '863720731232428';
+
   let allTodo = [];
   let shownTodo = [];
-  const pageUI = page();
-  const currentProject = 'Bababoi';
+  let pageUI;
+  const projectsOnLoad = [];
+  let currentOrder;
 
-  const deleteTodo = (id) => {
-    allTodo = allTodo.filter((i) => i.id !== id);
+  const setCurrentOrder = (newOrder) => {
+    currentOrder = newOrder;
+    publish('shownTodoChanged');
   };
 
-  const addTodo = () => {
-    const newTodo = todo(currentProject, publish, deleteTodo);
+  const deleteTodo = (id) => {
+    const tmp = JSON.parse(localStorage.getItem(allTodoKey));
+    delete tmp[id];
+    localStorage.setItem(allTodoKey, JSON.stringify(tmp));
+    allTodo = allTodo.filter((i) => i.id !== id);
+    publish('shownTodoChanged');
+  };
+
+  const addTodo = (projectName) => {
+    const newTodo = todo(projectName, publish, deleteTodo);
     allTodo.push(newTodo);
     publish('shownTodoChanged');
   };
 
-  const buildUI = () => {
-    const defaultTodo = todo(currentProject, publish, deleteTodo);
-    defaultTodo.set(
-      true,
-      '!!!',
-      'Todo Name',
-      'You can add a note here',
-      'no date',
-    );
-    allTodo.push(defaultTodo);
-    content.append(...pageUI.render());
+  const deleteProject = (id) => {
+    const tmp = JSON.parse(localStorage.getItem(projectKey));
+    // find index of id in tmp and splice it
+    const index = tmp.indexOf(id);
+    tmp.splice(index, 1);
+    localStorage.setItem(projectKey, JSON.stringify(tmp));
+  };
+
+  const addProject = () => {
+    const newProject = pageUI.project(publish, deleteProject);
+    pageUI.appendProject(newProject);
+  };
+
+  const init = () => {
+    const setDefaultTodo = () => {
+      const defaultTodo = todo('Default Project', publish, deleteTodo);
+      const today = new Date();
+      defaultTodo.set(
+        true,
+        '!!!',
+        'Todo Name',
+        'You can add a note here',
+        `${today.getDate()}.${today.getMonth() + 1}.${today.getFullYear()}`,
+      );
+      allTodo.push(defaultTodo);
+    };
+
+    const setDefaultProject = () => {
+      const newProject = pageUI.project(publish, deleteProject);
+      newProject.set('Default Project');
+      projectsOnLoad.push('Default Project');
+      pageUI.appendProject(newProject);
+    };
+
+    if (storageAvailable('localStorage')) {
+      pageUI = page(addTodo, addProject, setCurrentOrder);
+      content.append(...pageUI.render());
+
+      if (localStorage.getItem(projectKey)) {
+        projectsOnLoad.push(...JSON.parse(localStorage.getItem(projectKey)));
+        projectsOnLoad.forEach((projectName) => {
+          const tmpProject = pageUI.project(publish, deleteProject);
+          tmpProject.set(projectName);
+          pageUI.appendProject(tmpProject);
+        });
+      } else {
+        setDefaultProject();
+        localStorage.setItem(projectKey, JSON.stringify(projectsOnLoad));
+      }
+      if (localStorage.getItem(allTodoKey)) {
+        const tmp = JSON.parse(localStorage.getItem(allTodoKey));
+
+        Object.keys(tmp).forEach((key) => {
+          const id = key;
+          const [project, done, priority, title, note, date] = tmp[key];
+          const tmpTodo = todo(project, publish, deleteTodo);
+          tmpTodo.id = id;
+          tmpTodo.set(done, priority, title, note, date, id);
+          allTodo.push(tmpTodo);
+        });
+      } else {
+        setDefaultTodo();
+        const allTodoData = {};
+        allTodo.forEach((i) => {
+          const {
+            done, priority, title, note, date,
+          } = i.get();
+          allTodoData[i.id] = [
+            i.project, done, priority, title, note, date,
+          ];
+        });
+        localStorage.setItem(allTodoKey, JSON.stringify(allTodoData));
+      }
+    } else {
+      console.error('Local storage is not available');
+      setDefaultProject();
+      setDefaultTodo();
+    }
     publish('shownTodoChanged');
   };
-  subscribe('init', buildUI);
+  subscribe('init', init);
 
-  const storeData = () => {
-    console.log('store data');
-  };
-  subscribe('storeData');
-  subscribe('sownTodoChanged');
-
-  // when the data is loaded from localStorage and the allTodo is set,
-  // the localStorage should be updated with the new allTodo
-  // because the id of the todo is not the same as the id of the todo in the
-  // localStorage
-  // localStorage allTodo key: 1459333224678674
-  // localStorage project key: 8637207312324280
-
-  const render = () => {
+  const renderTodo = () => {
     pageUI.clearTodo();
+    console.log(`currentOrder: ${currentOrder}`);
+    console.log(localStorage.getItem(projectKey))
     shownTodo = [...allTodo]; // here needs to be a sorting function
     shownTodo.forEach((obj) => pageUI.appendTodo(obj));
+    console.info(JSON.parse(localStorage.getItem(allTodoKey)));
   };
-  subscribe('shownTodoChanged', render);
+  subscribe('shownTodoChanged', renderTodo);
 
   publish('init');
 }());

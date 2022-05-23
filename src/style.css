@@ -27,9 +27,12 @@
   grid-template-columns: auto 1fr;
 }
 
+/* PAGE */
+
+/* SIDEBAR */
+
 #sidebar {
   background-color: var(--cultured);
-  padding: 1rem;
   display: grid;
   align-content: start;
 }
@@ -37,11 +40,12 @@
 #sidebar .header {
   font-size: 1.8rem;
   font-weight: 700;
-  margin-bottom: 0.8rem;
+  margin: 1rem 1rem 0.5rem 1rem;
 }
 
 #sidebar .header:first-of-type {
   font-size: 2.2rem;
+  font-weight: 800;
 }
 
 #sidebar .header:first-of-type span {
@@ -50,11 +54,50 @@
 
 #sidebar .tab {
   color: var(--davys-grey);
-  margin-bottom: 1.5rem;
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: auto  1fr;
+  grid-auto-rows: 1.5rem;
+  gap: 0.5rem;
+  align-items: center;
+  cursor: pointer;
+  border-left: thick solid transparent;
 }
 
+#sidebar .tab img {
+  height: 100%;
+}
+
+#sidebar .tab img:last-child {
+  justify-self: end;
+}
+
+#sidebar .tab input[type="text"] {
+  appearance: none;
+  background-color: var(--cultured);
+  color: var(--davys-grey);
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-bottom: thin solid var(--davys-grey);
+  outline: none;
+  font-size: 1rem;
+  width: 7rem;
+}
+
+#sidebar .tab.active {
+  background-color: var(--cultured-2);
+  border-color: var(--davys-grey);
+}
+
+/* MAIN PAGE */
+
 #main {
+  position: relative;
+  overflow: auto;
+  height: 100vh;
   padding: 2rem;
+  padding-bottom: 6.5rem;
   display: grid;
   align-content: start;
   gap: 1rem;
@@ -65,7 +108,43 @@
   font-weight: 700;
   padding-bottom: 1rem;
   border-bottom: medium solid var(--light-gray);
+  display: grid;
+  gap: 0.5rem;
+  align-items: center;
+  grid-template-columns: auto 1fr;
+  grid-auto-rows: 1.5rem;
 }
+
+#main #current-project img {
+  height: 100%;
+}
+
+#main #add-todo {
+  display: none;
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  background-color: var(--cultured);
+  padding: 0.5rem;
+  border-radius: 2.5rem;
+  gap: 0.5rem;
+  grid-template-columns: max-content max-content;
+  grid-auto-rows: 1.5rem;
+  align-items: center;
+  border: thin solid var(--light-gray);
+  margin: 2rem;
+}
+
+#main #add-todo.active {
+  display: grid;
+}
+
+#main #add-todo img {
+  height: 100%;
+  width: 100%;
+}
+
+/* TODO CARD */
 
 .todo-obj {
   background-color: var(--cultured);
@@ -153,8 +232,7 @@
   font-size: 1.5rem;
   font-weight: 500;
   overflow: hidden;
-  text-overflow: ellipsis;
-
+  overflow-wrap: break-word;
 }
 
 .todo-obj .title-box input[type="text"] {
@@ -190,6 +268,8 @@
 .todo-obj .note-box {
   grid-area: note;
   color: var(--sonic-silver);
+  overflow: hidden;
+  overflow-wrap: break-word;
 }
 
 .todo-obj .note-box div {

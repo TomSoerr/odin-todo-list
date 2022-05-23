@@ -3,7 +3,9 @@ import deleteImage from './img/delete.svg';
 const todo = (project, publish, deleteTodo) => {
   const create = (type) => document.createElement(type);
 
-  let id = Symbol('id of todoObj');
+  const allTodoKey = '145933322467867';
+
+  let id = (Math.floor(Math.random() * 10 ** 15)).toString();
   let done = false;
   let priority = '-';
   let title = '';
@@ -11,11 +13,9 @@ const todo = (project, publish, deleteTodo) => {
   let date = 'no date';
 
   const updateLocalStorage = () => {
-    // load data from localStorage
-    // store data in allTodo
-    // search for same id in allTodo
-    // update key with value in allTodo
-    // stringify allTodo and store in localStorage
+    const allTodo = JSON.parse(localStorage.getItem(allTodoKey));
+    allTodo[id] = [project, done, priority, title, note, date];
+    localStorage.setItem(allTodoKey, JSON.stringify(allTodo));
   };
 
   const checkbox = create('input');
@@ -26,6 +26,7 @@ const todo = (project, publish, deleteTodo) => {
     done = !done;
     setTimeout(() => {
       checkbox.checked = done;
+      updateLocalStorage();
       publish('shownTodoChanged');
     }, 200);
   });
@@ -37,6 +38,7 @@ const todo = (project, publish, deleteTodo) => {
   const setPriority = (newPriority) => {
     priority = newPriority;
     prioritySpan.textContent = priority;
+    updateLocalStorage();
     publish('shownTodoChanged');
   };
   const priorityPopup = create('div');
@@ -85,6 +87,7 @@ const todo = (project, publish, deleteTodo) => {
     titleDiv.firstChild.remove();
     title = titleInput.value;
     titleSpan.textContent = title;
+    updateLocalStorage();
     titleDiv.append(titleSpan);
   });
 
@@ -95,7 +98,6 @@ const todo = (project, publish, deleteTodo) => {
   deleteBtn.append(deleteImg);
   deleteBtn.addEventListener('click', () => {
     deleteTodo(id);
-    publish('shownTodoChanged');
   });
 
   const noteDiv = create('div');
@@ -114,6 +116,7 @@ const todo = (project, publish, deleteTodo) => {
     noteDiv.firstChild.remove();
     note = noteInput.value;
     noteText.textContent = note;
+    updateLocalStorage();
     noteDiv.append(noteText);
   });
 
@@ -135,7 +138,8 @@ const todo = (project, publish, deleteTodo) => {
     date = (value)
       ? `${value.split('-')[2]}.${value.split('-')[1]}.${value.split('-')[0]}`
       : 'no date';
-    dueDateSpan.textContent = (date);
+    dueDateSpan.textContent = date;
+    updateLocalStorage();
     dueDateDiv.append(dueDateSpan);
   });
 
