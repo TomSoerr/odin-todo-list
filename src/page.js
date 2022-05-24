@@ -9,8 +9,9 @@ const page = (addTodo, addProject, setCurrentOrder) => {
   const create = (tagName) => document.createElement(tagName);
   const projectKey = '863720731232428';
 
-  let currentProject = 'Default Project';
+  let currentProject = '';
 
+  // main page were all todos are shown
   const currentProjectDiv = create('div');
   currentProjectDiv.id = 'current-project';
   const projectImg = create('img');
@@ -32,9 +33,12 @@ const page = (addTodo, addProject, setCurrentOrder) => {
   mainDiv.id = 'main';
   mainDiv.append(currentProjectDiv, addTodoDiv);
 
+  // sidebar where all projects and folders are shown
   const sidebarDiv = create('div');
   sidebarDiv.id = 'sidebar';
 
+  // remove all active classes from the sidebar
+  // and remove the active class from the add Todo button
   const removeAllActive = () => {
     [...sidebarDiv.children].forEach((child) => {
       child.classList.remove('active');
@@ -42,6 +46,7 @@ const page = (addTodo, addProject, setCurrentOrder) => {
     addTodoDiv.classList.remove('active');
   };
 
+  // create the html for the sidebar
   const logoHeader = create('div');
   logoHeader.classList.add('header');
   logoHeader.append((() => {
@@ -58,6 +63,7 @@ const page = (addTodo, addProject, setCurrentOrder) => {
     removeAllActive();
     allTab.classList.add('active');
     setCurrentOrder('All');
+    currentProjectDiv.replaceChildren(projectImg, 'All');
   });
   const todayTab = create('div');
   todayTab.classList.add('tab');
@@ -68,16 +74,18 @@ const page = (addTodo, addProject, setCurrentOrder) => {
     removeAllActive();
     todayTab.classList.add('active');
     setCurrentOrder('Today');
+    currentProjectDiv.replaceChildren(projectImg, 'Today');
   });
   const thisWeekTab = create('div');
   thisWeekTab.classList.add('tab');
   const thisWeekImg = create('img');
   thisWeekImg.src = thisWeekImage;
-  thisWeekTab.append(thisWeekImg, 'Week');
+  thisWeekTab.append(thisWeekImg, 'This Week');
   thisWeekTab.addEventListener('click', () => {
     removeAllActive();
     thisWeekTab.classList.add('active');
     setCurrentOrder('This Week');
+    currentProjectDiv.replaceChildren(projectImg, 'This Week');
   });
   const projectHeader = create('div');
   projectHeader.classList.add('header');
@@ -100,9 +108,12 @@ const page = (addTodo, addProject, setCurrentOrder) => {
     addProjectDiv,
   );
 
-  const project = () => {
+  // project factory
+  // creates a project with functionality
+  const project = (deleteProject) => {
     let name;
 
+    // create the html elements
     const projectDiv = create('div');
     projectDiv.classList.add('tab');
     const projectInput = create('input');
@@ -110,23 +121,31 @@ const page = (addTodo, addProject, setCurrentOrder) => {
     projectInput.focus();
     const removeImg = create('img');
     removeImg.src = removeImage;
-    removeImg.addEventListener('click', () => {
+    removeImg.addEventListener('click', (e) => {
+      e.stopPropagation();
       addTodoDiv.classList.remove('active');
+      removeAllActive();
       projectDiv.remove();
-      // delete all todos in this project
-      // setCurrentOrder('All');
-      alert('Project removed');
+      deleteProject(name);
+      allTab.classList.add('active');
+      setCurrentOrder('All');
     });
     projectDiv.append(projectInput, removeImg);
 
+    // select this project
     const activate = () => {
       removeAllActive();
       projectDiv.classList.add('active');
+      // to show the add project btn
       addTodoDiv.classList.add('active');
+      // so that new todos know which project they are in
       currentProject = name;
+      currentProjectDiv.replaceChildren(projectImg, currentProject);
       setCurrentOrder(currentProject);
     };
 
+    // set the name of the new project
+    // if were is no name set, the project is not added
     projectInput.addEventListener('blur', () => {
       if (projectInput.value === '') {
         projectDiv.remove();
@@ -140,19 +159,22 @@ const page = (addTodo, addProject, setCurrentOrder) => {
       }
     });
 
+    // to change between projects
     projectDiv.addEventListener('click', () => {
       if (projectDiv.children[0].tagName !== 'INPUT') {
         activate();
       }
     });
 
+    // to load a project from local storage
     const set = (newProjectName) => {
       name = newProjectName;
       projectDiv.replaceChildren(newProjectName, removeImg);
       activate();
     };
-
+    // return the html elements so they can be added to the sidebar
     const render = () => projectDiv;
+
     return {
       render,
       set,
@@ -160,6 +182,7 @@ const page = (addTodo, addProject, setCurrentOrder) => {
     };
   };
 
+  // so the main module can add projects from the local storage
   const appendProject = (newProject) => {
     sidebarDiv.insertBefore(newProject.render(), addProjectDiv);
     newProject.projectInput.focus();

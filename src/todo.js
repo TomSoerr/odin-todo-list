@@ -18,6 +18,7 @@ const todo = (project, publish, deleteTodo) => {
     localStorage.setItem(allTodoKey, JSON.stringify(allTodo));
   };
 
+  // create the html elements
   const checkbox = create('input');
   checkbox.type = 'checkbox';
   checkbox.checked = done;
@@ -141,6 +142,7 @@ const todo = (project, publish, deleteTodo) => {
     dueDateSpan.textContent = date;
     updateLocalStorage();
     dueDateDiv.append(dueDateSpan);
+    publish('shownTodoChanged');
   });
 
   const todoObj = create('div');
@@ -154,6 +156,7 @@ const todo = (project, publish, deleteTodo) => {
     dueDateDiv,
   );
 
+  // to load the todos from local storage
   const set = (newDone, newPriority, newTitle, newNote, newDate, newId) => {
     done = newDone;
     checkbox.checked = done;
@@ -168,6 +171,7 @@ const todo = (project, publish, deleteTodo) => {
     if (newId) id = newId;
   };
 
+  // to save the todos to local storage
   const get = () => ({
     done,
     priority,

@@ -15,6 +15,7 @@ import './style.css';
   const projectsOnLoad = [];
   let currentOrder;
 
+  // so the page module can change the order of the shown todos
   const setCurrentOrder = (newOrder) => {
     currentOrder = newOrder;
     publish('shownTodoChanged');
@@ -34,35 +35,49 @@ import './style.css';
     publish('shownTodoChanged');
   };
 
-  const deleteProject = (id) => {
-    const tmp = JSON.parse(localStorage.getItem(projectKey));
-    // find index of id in tmp and splice it
-    const index = tmp.indexOf(id);
-    tmp.splice(index, 1);
-    localStorage.setItem(projectKey, JSON.stringify(tmp));
+  const deleteProject = (projectName) => {
+    const tmpProject = JSON.parse(localStorage.getItem(projectKey));
+    const index = tmpProject.indexOf(projectName);
+    tmpProject.splice(index, 1);
+    localStorage.setItem(projectKey, JSON.stringify(tmpProject));
+    const tmpAllTodo = JSON.parse(localStorage.getItem(allTodoKey));
+    Object.keys(tmpAllTodo).forEach((key) => {
+      if (tmpAllTodo[key][0] === projectName) {
+        deleteTodo(key);
+      }
+    });
+    allTodo = allTodo.filter((i) => i.project !== projectName);
   };
 
   const addProject = () => {
-    const newProject = pageUI.project(publish, deleteProject);
+    const newProject = pageUI.project(deleteProject);
     pageUI.appendProject(newProject);
   };
 
   const init = () => {
+    // a default todo and a default project will be added on first load
     const setDefaultTodo = () => {
       const defaultTodo = todo('Default Project', publish, deleteTodo);
       const today = new Date();
+      const day = (today.getDate().toString().length === 1)
+        ? `0${today.getDate()}`
+        : today.getDate();
+      const month = ((today.getMonth() + 1).toString().length === 1)
+        ? `0${today.getMonth() + 1}`
+        : today.getMonth() + 1;
+      const year = today.getFullYear();
       defaultTodo.set(
         true,
         '!!!',
         'Todo Name',
         'You can add a note here',
-        `${today.getDate()}.${today.getMonth() + 1}.${today.getFullYear()}`,
+        `${day}.${month}.${year}`,
       );
       allTodo.push(defaultTodo);
     };
 
     const setDefaultProject = () => {
-      const newProject = pageUI.project(publish, deleteProject);
+      const newProject = pageUI.project(deleteProject);
       newProject.set('Default Project');
       projectsOnLoad.push('Default Project');
       pageUI.appendProject(newProject);
@@ -75,7 +90,7 @@ import './style.css';
       if (localStorage.getItem(projectKey)) {
         projectsOnLoad.push(...JSON.parse(localStorage.getItem(projectKey)));
         projectsOnLoad.forEach((projectName) => {
-          const tmpProject = pageUI.project(publish, deleteProject);
+          const tmpProject = pageUI.project(deleteProject);
           tmpProject.set(projectName);
           pageUI.appendProject(tmpProject);
         });
@@ -116,13 +131,47 @@ import './style.css';
   };
   subscribe('init', init);
 
+  const WEEK_LENGTH = 604800000;
+
+  const checkThisWeek = (date) => {
+    const { day, month, year } = date.match(/(?<day>\d{2})\.(?<month>\d{2})\.(?<year>\d{4})/).groups;
+    const todoDate = new Date();
+    todoDate.setDate(day);
+    todoDate.setMonth(month - 1);
+    todoDate.setFullYear(year);
+
+    const lastMonday = new Date();
+    lastMonday.setDate(lastMonday.getDate() - (lastMonday.getDay() - 1));
+    lastMonday.setHours(0, 0, 0, 0);
+
+    return (lastMonday.getTime() <= todoDate.getTime()
+    && todoDate.getTime() < (lastMonday.getTime() + WEEK_LENGTH));
+  };
+
+  // to render the todo list every time the order could have changed
   const renderTodo = () => {
+    if (currentOrder === 'All') {
+      shownTodo = [...allTodo];
+    } else if (currentOrder === 'Today') {
+      shownTodo = allTodo.filter((i) => {
+        const { date } = i.get();
+        const today = new Date();
+        const day = (today.getDate().toString().length === 1)
+          ? `0${today.getDate()}`
+          : today.getDate();
+        const month = ((today.getMonth() + 1).toString().length === 1)
+          ? `0${today.getMonth() + 1}`
+          : today.getMonth() + 1;
+        const year = today.getFullYear();
+        return date === `${day}.${month}.${year}`;
+      });
+    } else if (currentOrder === 'This Week') {
+      shownTodo = allTodo.filter((i) => checkThisWeek(i.get().date));
+    } else {
+      shownTodo = allTodo.filter((i) => i.project === currentOrder);
+    }
     pageUI.clearTodo();
-    console.log(`currentOrder: ${currentOrder}`);
-    console.log(localStorage.getItem(projectKey))
-    shownTodo = [...allTodo]; // here needs to be a sorting function
     shownTodo.forEach((obj) => pageUI.appendTodo(obj));
-    console.info(JSON.parse(localStorage.getItem(allTodoKey)));
   };
   subscribe('shownTodoChanged', renderTodo);
 
