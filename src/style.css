@@ -125,10 +125,10 @@
   right: 0;
   bottom: 0;
   background-color: var(--cultured);
-  padding: 0.5rem;
+  padding: 1rem;
   border-radius: 2.5rem;
   gap: 0.5rem;
-  grid-template-columns: max-content max-content;
+  grid-template-columns: auto auto;
   grid-auto-rows: 1.5rem;
   align-items: center;
   border: thin solid var(--light-gray);
@@ -142,7 +142,6 @@
 
 #main #add-todo img {
   height: 100%;
-  width: 100%;
 }
 
 /* TODO CARD */
