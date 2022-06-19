@@ -17,7 +17,7 @@ On a page refresh nothing is lost.
 ## Links
 - [Live Preview](https://tomsoerr.github.io/odin-todo-list/)
 - Link to the [Assignment](https://www.theodinproject.com/lessons/node-path-javascript-todo-list)
-- See my next [Project]()
+- See my next [Project](https://github.com/TomSoerr/odin-weather-app)
 
 ## Notes
 The icons are from google material icons and are licensed under the [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0.html).
