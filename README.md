@@ -15,6 +15,8 @@ All Todos and project are stored in the local storage.
 On a page refresh nothing is lost.
 
 ## Links
+
+- [Imprint](https://tomsoerr.github.io/#/impressum)
 - [Live Preview](https://tomsoerr.github.io/odin-todo-list/)
 - Link to the [Assignment](https://www.theodinproject.com/lessons/node-path-javascript-todo-list)
 - See my next [Project](https://github.com/TomSoerr/odin-weather-app)
